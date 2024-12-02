@@ -1,4 +1,5 @@
 package com.scanner.project;
+
 // Implementation of the Scanner for KAY
 // Updates are made to complete the lexical analyzer for the KAY language.
 
@@ -41,7 +42,7 @@ public class TokenStream {
 				skipWhiteSpace();
 			} else {
 				t.setValue("/");
-				t.setType("Operator");
+				t.setType("Other"); // Single slash is Other
 				return t;
 			}
 		}
@@ -71,6 +72,32 @@ public class TokenStream {
 						return t;
 					}
 	
+				case ':':
+					nextChar = readChar();
+					if (nextChar == '=') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+						return t; // `:=` is Operator
+					} else {
+						t.setType("Other"); // Single colon is Other
+						return t;
+					}
+	
+				case '-':
+					t.setType("Operator");
+					t.setValue(t.getValue() + nextChar);
+					nextChar = readChar();
+					if (isDigit(nextChar)) { // Negative number
+						Token literal = new Token();
+						literal.setType("Literal");
+						while (isDigit(nextChar)) {
+							literal.setValue(literal.getValue() + nextChar);
+							nextChar = readChar();
+						}
+						return literal;
+					}
+					return t;
+	
 				default:
 					nextChar = readChar();
 					return t;
@@ -92,10 +119,6 @@ public class TokenStream {
 			}
 			if (isKeyword(t.getValue())) {
 				t.setType("Keyword");
-			} else if (t.getValue().equals("true") || t.getValue().equals("false")) {
-				t.setType("Literal");
-			} else if (t.getValue().equals("True") || t.getValue().equals("False")) {
-				t.setType("Literal");
 			}
 			return t;
 		}
@@ -107,18 +130,19 @@ public class TokenStream {
 				nextChar = readChar();
 			}
 			if (nextChar == '.') {
-				t.setType("Other"); // Numbers with periods are invalid
+				t.setType("Other"); // Invalid number format
 				while (!isWhiteSpace(nextChar) && !isEof) {
 					t.setValue(t.getValue() + nextChar);
 					nextChar = readChar();
 				}
-			} else if (isLetter(nextChar)) {
-				t.setType("Other"); // Invalid sequence like 3aaa2
-				while (!isWhiteSpace(nextChar) && !isSeparator(nextChar) && !isOperator(nextChar) && !isEof) {
-					t.setValue(t.getValue() + nextChar);
-					nextChar = readChar();
-				}
 			}
+			return t;
+		}
+	
+		if (!isSeparator(nextChar) && !isOperator(nextChar) && !isLetter(nextChar) && !isDigit(nextChar) && !isWhiteSpace(nextChar)) {
+			t.setType("Other");
+			t.setValue(t.getValue() + nextChar);
+			nextChar = readChar();
 			return t;
 		}
 	
@@ -134,6 +158,7 @@ public class TokenStream {
 		skipWhiteSpace();
 		return t;
 	}
+	
 	
 
     private char readChar() {
