@@ -50,35 +50,42 @@ public class TokenStream {
             t.setType("Operator");
             t.setValue(t.getValue() + nextChar);
             switch (nextChar) {
-                case '<', '>', '=', '!' -> {
-                    nextChar = readChar();
-                    if (nextChar == '=') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    }
-                    return t;
-                }
-                case ':', '|', '&' -> {
-                    char currentChar = nextChar;
-                    nextChar = readChar();
-                    if (currentChar == ':' && nextChar == '=') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else if (currentChar == '|' && nextChar == '|') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else if (currentChar == '&' && nextChar == '&') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else {
-                        t.setType("Other"); // Invalid single | or &
-                    }
-                    return t;
-                }
-                default -> {
-                    nextChar = readChar();
-				}
+				case '<':
+				case '>':
+				case '=':
+				case '!':
+					nextChar = readChar();
+					if (nextChar == '=') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+					}
+					return t;
+			
+				case ':':
+				case '|':
+				case '&':
+					char currentChar = nextChar;
+					nextChar = readChar();
+					if (currentChar == ':' && nextChar == '=') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+					} else if (currentChar == '|' && nextChar == '|') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+					} else if (currentChar == '&' && nextChar == '&') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+					} else {
+						t.setType("Other"); // Invalid single | or &
+					}
+					return t;
+			
+				default:
+					nextChar = readChar();
+					return t;
 			}
+			
+			
 			
         }
 
