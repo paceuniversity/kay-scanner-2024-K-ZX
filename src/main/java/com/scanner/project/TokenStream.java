@@ -1,4 +1,5 @@
 package com.scanner.project;
+
 // Implementation of the Scanner for KAY
 // Updates are made to complete the lexical analyzer for the KAY language.
 
@@ -46,47 +47,44 @@ public class TokenStream {
             }
         }
 
-		if (isOperator(nextChar)) {
+        if (isOperator(nextChar)) {
             t.setType("Operator");
             t.setValue(t.getValue() + nextChar);
             switch (nextChar) {
-				case '<':
-				case '>':
-				case '=':
-				case '!':
-					nextChar = readChar();
-					if (nextChar == '=') {
-						t.setValue(t.getValue() + nextChar);
-						nextChar = readChar();
-					}
-					return t;
-			
-				case ':':
-				case '|':
-				case '&':
-					char currentChar = nextChar;
-					nextChar = readChar();
-					if (currentChar == ':' && nextChar == '=') {
-						t.setValue(t.getValue() + nextChar);
-						nextChar = readChar();
-					} else if (currentChar == '|' && nextChar == '|') {
-						t.setValue(t.getValue() + nextChar);
-						nextChar = readChar();
-					} else if (currentChar == '&' && nextChar == '&') {
-						t.setValue(t.getValue() + nextChar);
-						nextChar = readChar();
-					} else {
-						t.setType("Other"); // Invalid single | or &
-					}
-					return t;
-			
-				default:
-					nextChar = readChar();
-					return t;
-			}
-			
-			
-			
+                case '<':
+                case '>':
+                case '=':
+                case '!':
+                    nextChar = readChar();
+                    if (nextChar == '=') {
+                        t.setValue(t.getValue() + nextChar);
+                        nextChar = readChar();
+                    }
+                    return t;
+
+                case ':':
+                case '|':
+                case '&':
+                    char currentChar = nextChar;
+                    nextChar = readChar();
+                    if (currentChar == ':' && nextChar == '=') {
+                        t.setValue(t.getValue() + nextChar);
+                        nextChar = readChar();
+                    } else if (currentChar == '|' && nextChar == '|') {
+                        t.setValue(t.getValue() + nextChar);
+                        nextChar = readChar();
+                    } else if (currentChar == '&' && nextChar == '&') {
+                        t.setValue(t.getValue() + nextChar);
+                        nextChar = readChar();
+                    } else {
+                        t.setType("Other"); // Invalid single | or &
+                    }
+                    return t;
+
+                default:
+                    nextChar = readChar();
+                    return t;
+            }
         }
 
         if (isSeparator(nextChar)) {
@@ -116,13 +114,13 @@ public class TokenStream {
                 t.setValue(t.getValue() + nextChar);
                 nextChar = readChar();
             }
-			if (isLetter(nextChar)) {
+            if (isLetter(nextChar)) {
                 t.setType("Other");
                 while (!isWhiteSpace(nextChar) && !isSeparator(nextChar) && !isOperator(nextChar) && !isEof) {
                     t.setValue(t.getValue() + nextChar);
                     nextChar = readChar();
-				}
                 }
+            }
             return t;
         }
 
@@ -192,20 +190,22 @@ public class TokenStream {
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
-	public class Main {
-		public static void main(String[] args) {
-			// Specify the file path of your input file
-			String fileName = "/Users/norm/Downloads/KAYCS361_611.txt";
-	
-			// Create a TokenStream instance with the file path
-			TokenStream ts = new TokenStream(fileName);
-	
-			// Use the TokenStream to process the file
-			System.out.println("Reading tokens from: " + fileName);
-			while (!ts.isEoFile()) {
-				Token token = ts.nextToken();
-				System.out.println("Type: " + token.getType() + ", Value: " + token.getValue());
-			}
-		}
-	}	
+}
+
+// Top-level main class
+class Main {
+    public static void main(String[] args) {
+        // Specify the file path of your input file
+        String fileName = "/Users/norm/Downloads/KAYCS361_611.txt";
+
+        // Create a TokenStream instance with the file path
+        TokenStream ts = new TokenStream(fileName);
+
+        // Use the TokenStream to process the file
+        System.out.println("Reading tokens from: " + fileName);
+        while (!ts.isEoFile()) {
+            Token token = ts.nextToken();
+            System.out.println("Type: " + token.getType() + ", Value: " + token.getValue());
+        }
+    }
 }
