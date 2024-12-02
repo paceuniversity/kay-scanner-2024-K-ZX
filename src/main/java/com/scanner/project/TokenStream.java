@@ -1,5 +1,4 @@
 package com.scanner.project;
-
 // Implementation of the Scanner for KAY
 // Updates are made to complete the lexical analyzer for the KAY language.
 
@@ -27,115 +26,115 @@ public class TokenStream {
     }
 
     public Token nextToken() {
-        Token t = new Token();
-        t.setType("Other");
-        t.setValue("");
-
-        skipWhiteSpace();
-
-        while (nextChar == '/') {
-            nextChar = readChar();
-            if (nextChar == '/') {
-                while (!isEndOfLine(nextChar) && !isEof) {
-                    nextChar = readChar();
-                }
-                skipWhiteSpace();
-            } else {
-                t.setValue("/");
-                t.setType("Operator");
-                return t;
-            }
-        }
-
-        if (isOperator(nextChar)) {
-            t.setType("Operator");
-            t.setValue(t.getValue() + nextChar);
-            switch (nextChar) {
-                case '<':
-                case '>':
-                case '=':
-                case '!':
-                    nextChar = readChar();
-                    if (nextChar == '=') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    }
-                    return t;
-
-                case ':':
-                case '|':
-                case '&':
-                    char currentChar = nextChar;
-                    nextChar = readChar();
-                    if (currentChar == ':' && nextChar == '=') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else if (currentChar == '|' && nextChar == '|') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else if (currentChar == '&' && nextChar == '&') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    } else {
-                        t.setType("Other"); // Invalid single | or &
-                    }
-                    return t;
-
-                default:
-                    nextChar = readChar();
-                    return t;
-            }
-        }
-
-        if (isSeparator(nextChar)) {
-            t.setType("Separator");
-            t.setValue(t.getValue() + nextChar);
-            nextChar = readChar();
-            return t;
-        }
-
-        if (isLetter(nextChar)) {
-            t.setType("Identifier");
-            while (isLetter(nextChar) || isDigit(nextChar)) {
-                t.setValue(t.getValue() + nextChar);
-                nextChar = readChar();
-            }
-            if (isKeyword(t.getValue())) {
-                t.setType("Keyword");
-            } else if (t.getValue().equals("true") || t.getValue().equals("false")) {
-                t.setType("Literal");
-            }
-            return t;
-        }
-
-        if (isDigit(nextChar)) {
-            t.setType("Literal");
-            while (isDigit(nextChar)) {
-                t.setValue(t.getValue() + nextChar);
-                nextChar = readChar();
-            }
-            if (isLetter(nextChar)) {
-                t.setType("Other");
-                while (!isWhiteSpace(nextChar) && !isSeparator(nextChar) && !isOperator(nextChar) && !isEof) {
-                    t.setValue(t.getValue() + nextChar);
-                    nextChar = readChar();
-                }
-            }
-            return t;
-        }
-
-        if (isEof) {
-            return t;
-        }
-
-        while (!isEndOfToken(nextChar)) {
-            t.setValue(t.getValue() + nextChar);
-            nextChar = readChar();
-        }
-
-        skipWhiteSpace();
-        return t;
-    }
+		Token t = new Token();
+		t.setType("Other");
+		t.setValue("");
+	
+		skipWhiteSpace();
+	
+		while (nextChar == '/') {
+			nextChar = readChar();
+			if (nextChar == '/') {
+				while (!isEndOfLine(nextChar) && !isEof) {
+					nextChar = readChar();
+				}
+				skipWhiteSpace();
+			} else {
+				t.setValue("/");
+				t.setType("Operator");
+				return t;
+			}
+		}
+	
+		if (isOperator(nextChar)) {
+			t.setType("Operator");
+			t.setValue(t.getValue() + nextChar);
+			switch (nextChar) {
+				case '<':
+				case '>':
+				case '!':
+					nextChar = readChar();
+					if (nextChar == '=') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+					}
+					return t;
+	
+				case '=':
+					nextChar = readChar();
+					if (nextChar == '=') {
+						t.setValue(t.getValue() + nextChar);
+						nextChar = readChar();
+						return t; // Double equals is Operator
+					} else {
+						t.setType("Other"); // Single equals is Other
+						return t;
+					}
+	
+				default:
+					nextChar = readChar();
+					return t;
+			}
+		}
+	
+		if (isSeparator(nextChar)) {
+			t.setType("Separator");
+			t.setValue(t.getValue() + nextChar);
+			nextChar = readChar();
+			return t;
+		}
+	
+		if (isLetter(nextChar)) {
+			t.setType("Identifier");
+			while (isLetter(nextChar) || isDigit(nextChar)) {
+				t.setValue(t.getValue() + nextChar);
+				nextChar = readChar();
+			}
+			if (isKeyword(t.getValue())) {
+				t.setType("Keyword");
+			} else if (t.getValue().equals("true") || t.getValue().equals("false")) {
+				t.setType("Literal");
+			} else if (t.getValue().equals("True") || t.getValue().equals("False")) {
+				t.setType("Literal");
+			}
+			return t;
+		}
+	
+		if (isDigit(nextChar)) {
+			t.setType("Literal");
+			while (isDigit(nextChar)) {
+				t.setValue(t.getValue() + nextChar);
+				nextChar = readChar();
+			}
+			if (nextChar == '.') {
+				t.setType("Other"); // Numbers with periods are invalid
+				while (!isWhiteSpace(nextChar) && !isEof) {
+					t.setValue(t.getValue() + nextChar);
+					nextChar = readChar();
+				}
+			} else if (isLetter(nextChar)) {
+				t.setType("Other"); // Invalid sequence like 3aaa2
+				while (!isWhiteSpace(nextChar) && !isSeparator(nextChar) && !isOperator(nextChar) && !isEof) {
+					t.setValue(t.getValue() + nextChar);
+					nextChar = readChar();
+				}
+			}
+			return t;
+		}
+	
+		if (isEof) {
+			return t;
+		}
+	
+		while (!isEndOfToken(nextChar)) {
+			t.setValue(t.getValue() + nextChar);
+			nextChar = readChar();
+		}
+	
+		skipWhiteSpace();
+		return t;
+	}
+	
 
     private char readChar() {
         int i = 0;
