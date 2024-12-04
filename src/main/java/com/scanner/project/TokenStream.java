@@ -1,7 +1,10 @@
 package com.scanner.project;
-
 // Implementation of the Scanner for KAY
-// Updates are made to complete the lexical analyzer for the KAY language.
+
+
+// This code DOES NOT implement a scanner for JAY yet. You have to complete
+// the code and also make sure it implements a scanner for JAY - not something
+// else.
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -9,51 +12,75 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TokenStream {
-    private boolean isEof = false; 
-    private char nextChar = ' '; 
+    
+    // READ THE COMPLETE FILE FIRST
+	// You will need to adapt it to KAY, NOT JAY
+    
+    // Instance variables 
+    private boolean isEof = false; // is end of file
+    private char nextChar = ' '; // next character in input stream
     private BufferedReader input;
 
+    // This function was added to make the demo file work
     public boolean isEoFile() {
         return isEof;
     }
 
+    // Constructor
+	// Pass a filename for the program text as a source for the TokenStream.
     public TokenStream(String fileName) {
         try {
             input = new BufferedReader(new FileReader(fileName));
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + fileName);
+            // System.exit(1); // Removed to allow ScannerDemo to continue
+			// running after the input file is not found.
             isEof = true;
         }
     }
 
-    public Token nextToken() {
+    public Token nextToken() { // Main function of the scanner
+                                // Return next token type and value.
         Token t = new Token();
-        t.setType("Other");
+        t.setType("Other"); // For now it is Other
         t.setValue("");
-    
+        
+        // First check for whitespaces and bypass them
         skipWhiteSpace();
         if (isEof) return null;
-    
+        
+        // Then check for a comment, and bypass it
+		// but remember that / may also be a division operator.
         while (nextChar == '/') {
+            // Changed if to while to avoid the 2nd line being printed when
+			// there are two comment lines in a row.
             nextChar = readChar();
-            if (nextChar == '/') {
+            if (nextChar == '/') { // If / is followed by another /
+                // skip rest of line - it's a comment.
+				// TODO TO BE COMPLETED W completed 
                 while((int)nextChar!=10&&(int)nextChar!=12&&(int)nextChar!=13) {
                     nextChar = readChar();
                 }
+                // look for <cr>, <lf>, <ff>
                 skipWhiteSpace();
                 if(isEof) return null;
             } 
             else {
+                // A slash followed by anything else must be an operator.
                 t.setValue("/");
                 t.setType("Operator");
                 return t;
             }
         }
-    
+        
+        // Then check for an operator; this part of the code should recover 2-character
+		// operators as well as 1-character ones.
         if (isOperator(nextChar)) {
             t.setType("Operator");
             t.setValue(t.getValue() + nextChar);
+            
             switch (nextChar) {
+            // TODO TO BE COMPLETED WHERE NEEDED
                 case ':':
                     nextChar = readChar();
                     
@@ -67,6 +94,7 @@ public class TokenStream {
                     }
                     return t;  
                 case '<':
+                    // <=
                     nextChar = readChar();
                     
                     if (nextChar == '=') {
@@ -78,6 +106,7 @@ public class TokenStream {
                     }
                     return t;  
                 case '>':
+                    // >=
                     nextChar = readChar();
                     
                     if (nextChar == '=') {
@@ -89,6 +118,7 @@ public class TokenStream {
                     }
                     return t;
                 case '=':
+                    // ==
                     nextChar = readChar();
                     
                     if (nextChar == '=') {
@@ -127,6 +157,7 @@ public class TokenStream {
                     return t;
     
                 case '&':
+                    // Look or &&
                     nextChar = readChar();
                     
                     if (nextChar == '&') {
@@ -148,6 +179,7 @@ public class TokenStream {
     
         if (isSeparator(nextChar)) {
             t.setType("Separator");
+            // TODO TO BE COMPLETED
             t.setValue(t.getValue() + nextChar);
             nextChar = readChar();
             return t;
@@ -238,12 +270,14 @@ public class TokenStream {
     }
 
     private void skipWhiteSpace() {
+        // check for whitespaces, and bypass them
         while (!isEof && isWhiteSpace(nextChar)) {
             nextChar = readChar();
         }
     }
 
     private boolean isSeparator(char c) {
+        // TODO TO BE COMPLETED
         if (c=='('||c==')'||c=='{'||c=='}'||c==';'||c==',')
 		{
 			return true;
@@ -252,6 +286,8 @@ public class TokenStream {
 	}
 
     private boolean isOperator(char c) {
+        // Checks for characters that start operators
+		// TODO TO BE COMPLETED w completed 
         if (c=='*'||c=='-'||c=='+'||c=='<'||c=='>'||c=='|'||c=='!'||c=='&'||c=='='||c=='/'||c==':')
 		{
 			return true;
@@ -264,6 +300,7 @@ public class TokenStream {
     }
 
     private boolean isDigit(char c) {
+        // TODO TO BE COMPLETED
         if (c >= '0' && c <= '9')
 		{
 			return true;
