@@ -238,21 +238,3 @@ public class TokenStream {
         return c >= '0' && c <= '9';
     }
 }
-
-// Top-level main class
-class Main {
-    public static void main(String[] args) {
-        // Specify the file path of your input file
-        String fileName = "/Users/norm/Downloads/KAYCS361_611.txt";
-
-        // Create a TokenStream instance with the file path
-        TokenStream ts = new TokenStream(fileName);
-
-        // Use the TokenStream to process the file
-        System.out.println("Reading tokens from: " + fileName);
-        while (!ts.isEoFile()) {
-            Token token = ts.nextToken();
-            System.out.println("Type: " + token.getType() + ", Value: " + token.getValue());
-        }
-    }
-}
