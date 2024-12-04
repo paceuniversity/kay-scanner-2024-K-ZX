@@ -2,6 +2,9 @@ package com.scanner.project;
 // Implementation of the Scanner for KAY
 // Updates are made to complete the lexical analyzer for the KAY language.
 
+// Implementation of the Scanner for KAY
+// Updates are made to complete the lexical analyzer for the KAY language.
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,10 +32,9 @@ public class TokenStream {
         Token t = new Token();
         t.setType("Other");
         t.setValue("");
-
+    
         skipWhiteSpace();
-
-        // Handle single and double slash (comment)
+    
         while (nextChar == '/') {
             nextChar = readChar();
             if (nextChar == '/') {
@@ -42,12 +44,11 @@ public class TokenStream {
                 skipWhiteSpace();
             } else {
                 t.setValue("/");
-                t.setType("Other"); // Single slash is Other
+                t.setType("Other");
                 return t;
             }
         }
-
-        // Handle operators
+    
         if (isOperator(nextChar)) {
             t.setType("Operator");
             t.setValue(t.getValue() + nextChar);
@@ -55,62 +56,59 @@ public class TokenStream {
                 case '<':
                 case '>':
                 case '!':
-                    nextChar = readChar();
-                    if (nextChar == '=') {
-                        t.setValue(t.getValue() + nextChar);
-                        nextChar = readChar();
-                    }
-                    return t;
-
                 case '=':
                     nextChar = readChar();
                     if (nextChar == '=') {
                         t.setValue(t.getValue() + nextChar);
                         nextChar = readChar();
-                        return t; // Double equals is Operator
-                    } else {
-                        t.setType("Other"); // Single equals is Other
-                        return t;
                     }
-
+                    return t;
+    
                 case ':':
                     nextChar = readChar();
                     if (nextChar == '=') {
                         t.setValue(t.getValue() + nextChar);
                         nextChar = readChar();
-                        return t; // `:=` is Operator
+                        return t;
                     } else {
-                        t.setType("Other"); // Single colon is Other
+                        t.setType("Other");
                         return t;
                     }
-
+    
                 case '|':
                     nextChar = readChar();
                     if (nextChar == '|') {
-                        t.setType("Operator");
                         t.setValue("||");
                         nextChar = readChar();
                     } else {
-                        t.setType("Other"); // Single pipe is Other
+                        t.setType("Other");
                         t.setValue("|");
                     }
                     return t;
-
+    
+                case '&':
+                    nextChar = readChar();
+                    if (nextChar == '&') {
+                        t.setValue("&&");
+                        nextChar = readChar();
+                    } else {
+                        t.setType("Other");
+                        t.setValue("&");
+                    }
+                    return t;
+    
                 case '*':
-                    t.setType("Operator");
-                    t.setValue("*");
                     nextChar = readChar();
                     if (nextChar == '*') {
                         t.setValue("**");
                         nextChar = readChar();
                     }
                     return t;
-
+    
                 case '-':
                     t.setType("Operator");
-                    t.setValue(t.getValue() + nextChar);
                     nextChar = readChar();
-                    if (isDigit(nextChar)) { // Handle negative numbers
+                    if (isDigit(nextChar)) {
                         Token literal = new Token();
                         literal.setType("Literal");
                         while (isDigit(nextChar)) {
@@ -120,22 +118,20 @@ public class TokenStream {
                         return literal;
                     }
                     return t;
-
+    
                 default:
                     nextChar = readChar();
                     return t;
             }
         }
-
-        // Handle separators
+    
         if (isSeparator(nextChar)) {
             t.setType("Separator");
             t.setValue(t.getValue() + nextChar);
             nextChar = readChar();
             return t;
         }
-
-        // Handle identifiers and keywords
+    
         if (isLetter(nextChar)) {
             t.setType("Identifier");
             while (isLetter(nextChar) || isDigit(nextChar)) {
@@ -150,15 +146,14 @@ public class TokenStream {
             }
             return t;
         }
-
-        // Handle numbers
+    
         if (isDigit(nextChar)) {
             t.setType("Literal");
             while (isDigit(nextChar)) {
                 t.setValue(t.getValue() + nextChar);
                 nextChar = readChar();
             }
-            if (nextChar == '.') { // Numbers with periods are invalid
+            if (nextChar == '.') {
                 t.setType("Other");
                 while (!isWhiteSpace(nextChar) && !isEof) {
                     t.setValue(t.getValue() + nextChar);
@@ -167,8 +162,7 @@ public class TokenStream {
             }
             return t;
         }
-
-        // Handle invalid characters
+    
         if (!isSeparator(nextChar) && !isOperator(nextChar) && !isLetter(nextChar) &&
             !isDigit(nextChar) && !isWhiteSpace(nextChar)) {
             t.setType("Other");
@@ -176,18 +170,16 @@ public class TokenStream {
             nextChar = readChar();
             return t;
         }
-
-        // End of file
+    
         if (isEof) {
             return t;
         }
-
-        // Handle other cases
+    
         while (!isEndOfToken(nextChar)) {
             t.setValue(t.getValue() + nextChar);
             nextChar = readChar();
         }
-
+    
         skipWhiteSpace();
         return t;
     }
